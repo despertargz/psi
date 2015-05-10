@@ -1,0 +1,11 @@
+PSI - Perl Subroutine Indexer
+
+A website which indexes packages and their subroutines, making it easy to search for packages and view their interface.
+
+Setup 
+
+1. Create MySQL database and import the setup/schema.sql. 
+2. Update config.yaml with the username/password.
+3. Run import.pl passing it the directory you would like to index. The directory is scanned recursively for .pm files.
+4. Run app.py to start the website
+
