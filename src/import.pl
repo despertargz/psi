@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use File::Find;
-use File::Grep 'fgrep';
+#use File::Grep 'fgrep';
 use File::Slurp;
 use Data::Dumper;
 use DBI;
@@ -12,6 +12,8 @@ use YAML 'LoadFile';
 use FindBin '$Bin';
 
 my $config = LoadFile("$Bin/config.yaml");
+print Dumper($config);
+
 my $dbh = DBI->connect("dbi:mysql:database=" . $config->{db_name} . ";host=" . $config->{db_host}, $config->{db_user}, $config->{db_pass}, { RaiseError => 1 });
 
 my $dir = shift @ARGV;
@@ -121,7 +123,7 @@ sub process_file {
 sub get_method_params {
     my $method_text = shift;
 
-    if ($method_text =~ /validated_hash/) {
+    if ($method_text =~ /validated_hash|validted_list/) {
         return get_method_params_validated_hash($method_text);
     }
     else {

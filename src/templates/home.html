@@ -21,8 +21,8 @@
             function search() {
                 var p = $.getJSON('/search?text=' + $("#search").val());
                 var table = $("#tb");
-                table.html('');
                 p.success(function(result) { 
+                	table.html('');
                     result.forEach(function(package) {
                         row = $("<tr style='cursor: pointer'></tr>");
                         row.data("package", package);   
@@ -84,11 +84,15 @@
                     result.forEach(function(property) {
                         var li;
                         var param_text = "";
-                        if (property.params.length > 0) {
+                        if (property.type == "sub") {
 
                            property.params.forEach(function(item) {
                               param_text += ("<span style='color: darkblue'>" + item.subtype + "</span>" + " " + item.subname + ", ");
                            });
+
+					       if (param_text.length >= 2) {
+								param_text = param_text.slice(0, -2);
+						   }
 
                            li = "<li class='list-group-item'><b>" + property.name + "</b> (" + param_text + ")" + "</li>";
                         }

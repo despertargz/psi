@@ -4,17 +4,14 @@ from pygments.lexers import get_lexer_by_name,PerlLexer
 from pygments.formatters import HtmlFormatter
 import MySQLdb
 import json
+import yaml
 
 app = Flask('psi')
-app.config.from_object('config')
+app.debug = True
+config = yaml.load(open("config.yaml", "r"))
 
 def get_db():
-    con = MySQLdb.connect(
-        'host' = app.config['DB_HOST'], 
-        'db' = app.config['DB_NAME'],
-        'user' = app.config['DB_USER'], 
-        'passwd' = app.config['DB_PASS']
-    );
+    con = MySQLdb.connect(host = config['db_host'], db = config['db_name'], user = config['db_user'], passwd = config['db_pass']);
     return con.cursor()
     
 @app.route('/hello')
@@ -63,5 +60,5 @@ def get_source():
 
     
 
-app.run(app.config['IP'])
+app.run(config['ip'])
 

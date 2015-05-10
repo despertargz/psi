@@ -1,0 +1,6 @@
+db_host: localhost
+db_name: psi
+db_user: changeme
+db_pass: changeme
+ip: 0.0.0.0
+
