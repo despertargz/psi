@@ -1,0 +1,146 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <script id='template-search-page' type='text/html'>
+            <table class='table table-hover' style='cusor: pointer'>
+                <thead>
+                    <!--<tr>
+                        <th>Name</th>
+                    </tr>-->
+                </thead>
+                <tbody id='tb'>
+                </tbody>
+            </table>
+        </script>
+
+        <script>
+            function search() {
+                var p = $.getJSON('/search?text=' + $("#search").val());
+                var table = $("#tb");
+                table.html('');
+                p.success(function(result) { 
+                    result.forEach(function(package) {
+                        row = $("<tr style='cursor: pointer'></tr>");
+                        row.data("package", package);   
+                        row.click(opentab);
+                        row.append($("<td>" + package + "</td>"));
+                        table.append(row);
+                    });
+                });
+            }
+
+            function opentab(e)  {
+               var target = $(e.target).parent();
+               var package = target.data("package");
+
+               var a = $("<a href='#'>" + package + "</a>");
+               a.data("package", package);
+               a.click(show_package);
+
+               var li = $("<li></li>");
+               li.append(a);
+
+               $(".nav").append(li); 
+            }
+
+
+            function show_package(e) {
+                var package = $(e.target).data("package");
+                var nav = $("#subnav");
+                nav.html('');
+
+                var group = $("<div class='btn-group' role='group'></div>");
+                var button_prop = $("<button type='button' class='btn btn-success' ' data-package='" + package + "'><span class='glyphicon glyphicon-list'></span>&nbsp;Properties</button>");
+                var button_source = $("<button type='button' class='btn btn-success' ' data-package='" + package + "'><span class='glyphicon glyphicon-eye-open'></span>&nbsp;Source</button>");
+                group.append(button_prop);
+                group.append(button_source);
+
+                button_prop.click(get_properties);
+                button_source.click(get_source);
+
+                nav.append(group);
+                
+                get_properties(e);
+            }
+
+            function get_properties(e) {
+                var package = $(e.target).data("package");
+                var p = $.getJSON("/properties?package=" + package);
+                p.success(function(result) { 
+                    var content = $("#content");
+                    content.html("");
+
+                    var ul_props = $("<ul id='props' style='float: left; width:45%; box-sizing: border-box' class='list-group'></ul");
+                    var ul_subs = $("<ul id='subs' style='float: left; width:45%; box-sizing: border-box; margin-left: 10px' class='list-group'></ul");
+                    content.append(ul_props); 
+                    content.append(ul_subs);
+
+                    $("#subs").append("<li class='active list-group-item'>Subroutines</li>");
+                    $("#props").append("<li class='active list-group-item'>Properties</li>");
+                    result.forEach(function(property) {
+                        var li;
+                        var param_text = "";
+                        if (property.params.length > 0) {
+
+                           property.params.forEach(function(item) {
+                              param_text += ("<span style='color: darkblue'>" + item.subtype + "</span>" + " " + item.subname + ", ");
+                           });
+
+                           li = "<li class='list-group-item'><b>" + property.name + "</b> (" + param_text + ")" + "</li>";
+                        }
+                        else {
+                            li = "<li class='list-group-item'>" + property.name + "</li>";
+                        }
+                        if (property.type == 'sub') {
+                            $("#subs").append(li);
+                        }
+                        else {
+                            $("#props").append(li);
+                        }
+                    });
+        
+                });
+            }
+
+            function get_source(e) {
+                var package = $(e.target).data('package');
+                var p = $.getJSON('/source?package=' + package);
+                p.success(function(source) {
+                    $("#content").html(source);
+                });
+            }
+
+            function open_search() {
+               $("#subnav").html("<input class='form-control' id='search' type='text' onkeyup='search()'/>");
+               $("#content").html($("#template-search-page").text()); 
+            }
+
+            $(document).ready(function() {
+                open_search();
+            });
+
+            $(document).on("click", ".nav li", function(e) {
+               $(".nav li").removeClass("active"); 
+               $(e.target).parent().addClass("active"); 
+            });
+
+        </script>
+    </head>
+    <body style='padding: 10px;'>
+        <div style='float: left; width: 400px'>
+            <ul class="nav nav-pills nav-stacked">
+                <li class='active' onclick='open_search()' role='presentation'><a href='#'><span class='glyphicon glyphicon-search'></span>&nbsp;Search</a></li> 
+            </ul>
+        </div>
+        <div id='subnav' style='margin-left: 410px; margin-bottom: 10px;'>
+        </div>
+        <div id='content' style='margin-left: 410px;'>
+        </div>
+    </body>
+</html>
+
+
