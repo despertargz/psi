@@ -135,7 +135,7 @@ sub get_method_params_validated_hash {
     my $method_text = shift;
     
     my @params = ();
-    push(@params, $1 => $2) while ($method_text =~ /(\w+).*isa.*\s'?([\w|:]+)'?\s/g); 
+    push(@params, $1 => $2) while ($method_text =~ /(\w+).*isa\s*=>\s*'?([\w|:]+)'?/g); 
     my %hash = @params; 
     return \%hash;
 }
@@ -152,7 +152,6 @@ sub parse_subs {
 
     foreach my $line (@lines) {
         if (!$sub && $line =~ /sub (\w+)/) {
-            print "creating sub $1\n";
             $sub = {
                 name => $1,
                 text => [] 
@@ -163,21 +162,16 @@ sub parse_subs {
         }
 
         my @chars = split //, $line;
-        print "char split: @chars\n";
 
         foreach my $char (@chars) {
             if ($char eq '{') {
                 $brace_count++;
-                print "brace count: $brace_count\n";
             }
             elsif ($char eq '}') {
                 $brace_count--;
-                print "brace count: $brace_count\n";
             }
-
             if ($sub) {
                 push($sub->{text}, $char);
-                print("pushing $char\n");
                 if ($brace_count == 0) {
                     $sub->{text} = join('', @{$sub->{text}});
                     push(@subs, $sub); 
